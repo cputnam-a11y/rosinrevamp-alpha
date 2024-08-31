@@ -1,0 +1,36 @@
+{
+	"schemaVersion": 1,
+	"id": "rosinrevamp",
+	"version": "0.0.1",
+	"name": "Rosinflower's Revamp",
+	"description": "This mod is meant to overhaul survival while making it still feel like Minecraft.",
+	"authors": [
+		"Coarse Rosinflower"
+	],
+	"contact": {
+		"homepage": "https://cd1rtx3.github.io/"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/rosinrevamp/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.rosinrevamp.RosinRevamp"
+		],
+		"client": [
+			"com.rosinrevamp.RosinRevampClient"
+		]
+	},
+	"mixins": [
+		"rosinrevamp.mixins.json",
+		{
+			"config": "rosinrevamp.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.15.11",
+		"minecraft": "~1.21",
+		"java": ">=21"
+	}
+}

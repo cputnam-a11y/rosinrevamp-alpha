@@ -1,0 +1,16 @@
+{
+	"required": true,
+	"package": "com.rosinrevamp.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"ClientPlayerInteractionManagerMixin",
+		"GameRendererMixin",
+		"HeldItemRendererMixin",
+		"InGameHudMixin",
+		"KeyBindingOverride",
+		"MinecraftClientMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
