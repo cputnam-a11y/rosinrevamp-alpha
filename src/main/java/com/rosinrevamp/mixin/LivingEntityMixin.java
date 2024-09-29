@@ -1,5 +1,8 @@
 package com.rosinrevamp.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+
 import it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
 
 import net.minecraft.advancement.criterion.Criteria;
@@ -17,7 +20,6 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.tag.DamageTypeTags;
@@ -29,10 +31,13 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(value = LivingEntity.class, priority = 999)
+@Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements Attackable {
 	@Accessor public abstract float getLastDamageTaken();
 	@Accessor public abstract void setAttackingPlayer(PlayerEntity attackingPlayer);
@@ -45,7 +50,6 @@ public abstract class LivingEntityMixin extends Entity implements Attackable {
 	@Shadow protected abstract void takeShieldHit(LivingEntity attacker);
 	@Shadow protected abstract void knockback(LivingEntity target);
 	@Shadow protected abstract boolean tryUseTotem(DamageSource source);
-	@Shadow protected abstract void playSound(SoundEvent sound);
 	@Shadow protected abstract SoundEvent getDeathSound();
 	@Shadow protected abstract void applyDamage(DamageSource source, float amount);
 	@Shadow protected abstract void playHurtSound(DamageSource damageSource);
@@ -54,44 +58,27 @@ public abstract class LivingEntityMixin extends Entity implements Attackable {
 	private LivingEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
 		super(entityType, world);
 	}
-	public boolean blockedByShield(DamageSource source) {
-		if (!source.isIn(DamageTypeTags.BYPASSES_SHIELD)
-			&& ((LivingEntity)(Object)this).isBlocking()
-			&& !(source.getSource() instanceof PersistentProjectileEntity persistentProjectileEntity && persistentProjectileEntity.getPierceLevel() > 0)) {
-
-			Vec3d sourcePos = source.getPosition();
-			if (sourcePos != null) {
-				Vec3d rotation = this.getRotationVector(0.0F, this.getHeadYaw());
-				Vec3d sourceRotation = sourcePos.relativize(this.getPos());
-				sourceRotation = new Vec3d(sourceRotation.x, 0.0, sourceRotation.z).normalize();
-				// Negative cosine of 50deg, gives a slice with arc length 100deg.
-				return sourceRotation.dotProduct(rotation) < -0.6427876096865394;
-			}
-		}
-		return false;
+	@Redirect(method = "blockedByShield", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Vec3d;dotProduct(Lnet/minecraft/util/math/Vec3d;)D"))
+	public double decreaseShieldArc(Vec3d self, Vec3d vec) {
+		return self.dotProduct(vec) + 0.6427876096865394;
 	}
-	public void takeKnockback(double strength, double x, double z) {
-		LivingEntity self = (LivingEntity)(Object)this;
-		strength *= 1.0 - self.getAttributeValue(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE);
-		if (!(strength <= 0.0)) {
-			self.velocityDirty = true;
-			Vec3d currVel = self.getVelocity();
-			while (x * x + z * z < 0.00001) {
-				x = Math.random() - 0.5;
-				z = Math.random() - 0.5;
-			}
-			Vec3d applVel = new Vec3d(x, 0.0, z).normalize().multiply(strength);
-			self.setVelocity(0.5 * currVel.x - applVel.x, 0.5 * currVel.y + (this.isOnGround() ? 1.0 : 0.5) * Math.min(0.4, strength), 0.5 * currVel.z - applVel.z);
-		}
+	@WrapOperation(method = "takeKnockback", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;setVelocity(DDD)V"))
+	public void airborneKnockback(LivingEntity self, double dx, double dy, double dz, Operation<Double> original, double strength, double x, double z) {
+		original.call(self, dx, 0.5 * self.getVelocity().y + (self.isOnGround() ? 1.0 : 0.5) * Math.min(0.4, strength), dz);
 	}
+	/**
+	 * @author Coarse Rosinflower
+	 * @reason honestly can't be fucked rn
+	 */
+	@Overwrite
 	public boolean damage(DamageSource source, float amount) {
 		LivingEntity self = (LivingEntity)(Object)this;
 		World world = self.getWorld();
 		if (self.isInvulnerableTo(source)
 			|| world.isClient
 			|| self.isDead()
-			|| source.isIn(DamageTypeTags.IS_FIRE) && self.hasStatusEffect(StatusEffects.FIRE_RESISTANCE)
-		) {
+			|| source.isIn(DamageTypeTags.IS_FIRE) && self.hasStatusEffect(StatusEffects.FIRE_RESISTANCE)) {
+
 			return false;
 		}
 
@@ -149,9 +136,14 @@ public abstract class LivingEntityMixin extends Entity implements Attackable {
 			this.setLastDamageTaken(amount);
 			self.timeUntilRegen = 20;
 			this.applyDamage(source, amount);
-			if (source.getSource() instanceof PlayerEntity attacker && attacker.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED) > 2.0) {
-				self.maxHurtTime = (int)(20.0 / attacker.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED));
-			} else {
+			self.maxHurtTime = 10;
+			try {
+				if (source.getSource() instanceof LivingEntity attacker && attacker.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED) > 2.0) {
+					self.maxHurtTime = (int)(20.0 / attacker.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED));
+				} else {
+					self.maxHurtTime = 10;
+				}
+			} catch (Exception e) {
 				self.maxHurtTime = 10;
 			}
 			self.hurtTime = self.maxHurtTime;
@@ -191,15 +183,15 @@ public abstract class LivingEntityMixin extends Entity implements Attackable {
 
 				double x = 0.0, z = 0.0;
 				if (source.getSource() instanceof ProjectileEntity projectileEntity) {
-					DoubleDoubleImmutablePair doubleDoubleImmutablePair = projectileEntity.getKnockback(self, source);
-					x = -doubleDoubleImmutablePair.leftDouble();
-					z = -doubleDoubleImmutablePair.rightDouble();
+					DoubleDoubleImmutablePair knockback = projectileEntity.getKnockback(self, source);
+					x = -knockback.leftDouble();
+					z = -knockback.rightDouble();
 				} else if (source.getPosition() != null) {
 					x = source.getPosition().getX() - self.getX();
 					z = source.getPosition().getZ() - self.getZ();
 				}
 
-				this.takeKnockback(didBlock ? 0.2F : 0.4F, x, z);
+				self.takeKnockback(didBlock ? 0.2F : 0.4F, x, z);
 				self.tiltScreen(x, z);
 			}
 		}

@@ -3,7 +3,7 @@
 	"id": "rosinrevamp",
 	"version": "0.0.1",
 	"name": "Rosinflower's Revamp",
-	"description": "This mod is meant to overhaul survival while making it still feel like Minecraft.",
+	"description": "What if Mojang did things a little differently?",
 	"authors": [
 		"Coarse Rosinflower"
 	],
@@ -21,6 +21,7 @@
 			"com.rosinrevamp.RosinRevampClient"
 		]
 	},
+	"accessWidener" : "rosinrevamp.accesswidener",
 	"mixins": [
 		"rosinrevamp.mixins.json",
 		{

@@ -2,8 +2,13 @@
 	"required": true,
 	"package": "com.rosinrevamp.mixin",
 	"compatibilityLevel": "JAVA_21",
+	"mixinPriority": 0,
 	"mixins": [
+		"handlers.BoatEntityHandlers",
+		"handlers.EntityAbstractHandler",
+		"AbstractBlockMixin",
 		"BedItemMixin",
+		"BoatEntityMixin",
 		"BowItemMixin",
 		"CrossbowItemMixin",
 		"EggItemMixin",
@@ -18,7 +23,8 @@
 		"SwordItemMixin",
 		"TestCommandMixin",
 		"ToolMaterialsMixin",
-		"TridentItemMixin"
+		"TridentItemMixin",
+		"VehicleEntityMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

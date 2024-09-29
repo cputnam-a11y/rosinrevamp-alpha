@@ -18,6 +18,10 @@ public abstract class SwordItemMixin extends ToolItem {
 	private SwordItemMixin(ToolMaterial material, Item.Settings settings) {
 		super(material, settings);
 	}
+	/**
+	 * @author Coarse Rosinflower
+	 * @reason Changes the vanilla values for the swords, which requires throwing the {@link AttributeModifiersComponent}s away and making a new one.
+	 */
 	@Overwrite
 	public static AttributeModifiersComponent createAttributeModifiers(ToolMaterial material, int baseAttackDamage, float attackSpeed) {
 		return AttributeModifiersComponent.builder()

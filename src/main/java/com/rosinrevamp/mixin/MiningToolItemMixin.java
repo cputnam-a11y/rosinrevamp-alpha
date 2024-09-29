@@ -72,6 +72,10 @@ public abstract class MiningToolItemMixin extends ToolItem {
 	private MiningToolItemMixin(ToolMaterial material, TagKey<Block> effectiveBlocks, Item.Settings settings) {
 		super(material, settings.component(DataComponentTypes.TOOL, material.createComponent(effectiveBlocks)));
 	}
+	/**
+	 * @author Coarse Rosinflower
+	 * @reason Changes the vanilla values for the mining tools, which requires throwing the {@link AttributeModifiersComponent}s away and making a new one.
+	 */
 	@Overwrite
 	public static AttributeModifiersComponent createAttributeModifiers(ToolMaterial material, float baseAttackDamage, float attackSpeed) {
 		if (baseAttackDamage < 1.0F) {
@@ -91,7 +95,7 @@ public abstract class MiningToolItemMixin extends ToolItem {
 			return AttributeModifiersComponent.builder()
 				.add(
 					EntityAttributes.GENERIC_ATTACK_DAMAGE,
-					material.getAttackDamage() >= 3.0F
+					material.getAttackDamage() >= 2.0F
 						? new EntityAttributeModifier(Identifier.ofVanilla("base_attack_damage"), (double)(material.getAttackDamage()), EntityAttributeModifier.Operation.ADD_VALUE)
 						: new EntityAttributeModifier(Identifier.ofVanilla("base_attack_damage"), (double)(1.0F + material.getAttackDamage()), EntityAttributeModifier.Operation.ADD_VALUE),
 					AttributeModifierSlot.MAINHAND

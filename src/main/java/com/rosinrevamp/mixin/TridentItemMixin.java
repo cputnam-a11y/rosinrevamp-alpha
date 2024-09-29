@@ -18,6 +18,10 @@ public abstract class TridentItemMixin extends Item implements ProjectileItem {
 		super(settings);
 	}
 
+	/**
+	 * @author Coarse Rosinflower
+	 * @reason Changes the vanilla values for the trident, which requires throwing the {@link AttributeModifiersComponent}s away and making a new one.
+	 */
 	@Overwrite
 	public static AttributeModifiersComponent createAttributeModifiers() {
 		return AttributeModifiersComponent.builder()

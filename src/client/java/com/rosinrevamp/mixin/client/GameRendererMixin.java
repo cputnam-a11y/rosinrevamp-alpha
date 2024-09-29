@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -14,6 +15,7 @@ import net.minecraft.util.math.Vec3d;
 import java.util.List;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
@@ -23,7 +25,12 @@ import com.rosinrevamp.RosinRevampClient;
 public abstract class GameRendererMixin implements AutoCloseable {
 	@Accessor public abstract MinecraftClient getClient();
 	@Shadow private static HitResult ensureTargetInRange(HitResult hitResult, Vec3d cameraPos, double interactionRange) {return null;}
-	@SuppressWarnings("unused")
+
+	/**
+	 * @author Coarse Rosinflower
+	 * @reason honestly can't be fucked rn
+	 */
+	@Overwrite
 	private HitResult findCrosshairTarget(Entity camera, double blockInteractionRange, double entityInteractionRange, float tickDelta) {
 		MinecraftClient client = this.getClient();
 		double range = Math.max(blockInteractionRange, entityInteractionRange);
@@ -54,11 +61,14 @@ public abstract class GameRendererMixin implements AutoCloseable {
 				client.player.getBoundingBox().offset(client.player.getRotationVec(tickDelta).multiply(1.3)).expand(1.0, 0.25, 1.0)
 			);
 			for (LivingEntity target: sweepTargets) {
-				if (!target.canHit() || target == (LivingEntity)client.player) {
-					continue;
+				if (target != client.player
+					&& !client.player.isTeammate(target)
+					&& !(target instanceof ArmorStandEntity armorStandEntity && armorStandEntity.isMarker())
+					&& client.player.squaredDistanceTo(target) < 9.0) {
+
+					entityHitResult = new EntityHitResult(target);
+					break;
 				}
-				entityHitResult = new EntityHitResult(target);
-				break;
 			}
 		}
 

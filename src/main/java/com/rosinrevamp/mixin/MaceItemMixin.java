@@ -16,6 +16,10 @@ public abstract class MaceItemMixin extends Item {
 		super(settings);
 	}
 
+	/**
+	 * @author Coarse Rosinflower
+	 * @reason Changes the vanilla values for the mace, which requires throwing the {@link AttributeModifiersComponent} away and making a new one.
+	 */
 	@Overwrite
 	public static AttributeModifiersComponent createAttributeModifiers() {
 		return AttributeModifiersComponent.builder()

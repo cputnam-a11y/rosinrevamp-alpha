@@ -20,10 +20,15 @@ import net.minecraft.util.Identifier;
 
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(value = ItemStack.class, priority = Integer.MAX_VALUE)
 public abstract class ItemStackMixin implements ComponentHolder {
-	@SuppressWarnings("unused")
+	/**
+	 * @author Coarse Rosinflower
+	 * @reason honestly can't be fucked rn
+	 */
+	@Overwrite
 	private void appendAttributeModifierTooltip(
 		Consumer<Text> textConsumer, @Nullable PlayerEntity player, RegistryEntry<EntityAttribute> attribute, EntityAttributeModifier modifier
 	) {

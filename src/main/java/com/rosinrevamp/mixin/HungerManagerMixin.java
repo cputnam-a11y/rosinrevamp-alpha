@@ -4,7 +4,9 @@ import net.minecraft.entity.player.HungerManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
+
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(HungerManager.class)
@@ -19,6 +21,11 @@ public abstract class HungerManagerMixin {
 	@Accessor public abstract void setFoodTickTimer(int foodTickTimer);
 	@Accessor public abstract int getPrevFoodLevel();
 	@Accessor public abstract void setPrevFoodLevel(int prevFoodLevel);
+	/**
+	 * @author Coarse Rosinflower
+	 * @reason honestly can't be fucked rn
+	 */
+	@Overwrite
 	public void update(PlayerEntity player) {
 		HungerManager self = (HungerManager)(Object)this;
 		Difficulty difficulty = player.getWorld().getDifficulty();
@@ -42,7 +49,7 @@ public abstract class HungerManagerMixin {
 		} else if (this.getFoodLevel() <= 0) {
 			this.setFoodTickTimer(this.getFoodTickTimer() + 1);
 			if (this.getFoodTickTimer() >= 80) {
-				if (player.getHealth() > 10.0F || difficulty == Difficulty.HARD || player.getHealth() > 1.0F && difficulty == Difficulty.NORMAL) {
+				if (player.getHealth() > 10.0F || /* player.getHealth() > 0.0F && */ difficulty == Difficulty.HARD || player.getHealth() > 1.0F && difficulty == Difficulty.NORMAL) {
 					player.damage(player.getDamageSources().starve(), 1.0F);
 				}
 

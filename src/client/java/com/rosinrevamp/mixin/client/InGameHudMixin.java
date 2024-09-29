@@ -20,6 +20,7 @@ import net.minecraft.world.GameMode;
 
 import org.joml.Matrix4fStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -32,7 +33,12 @@ public abstract class InGameHudMixin {
 	@Shadow protected abstract boolean shouldRenderSpectatorCrosshair(HitResult hitResult);
 	@Shadow protected abstract PlayerEntity getCameraPlayer();
 	@Shadow protected abstract void renderHotbarItem(DrawContext context, int x, int y, RenderTickCounter tickCounter, PlayerEntity player, ItemStack stack, int seed);
-	@SuppressWarnings("unused")
+
+	/**
+	 * @author Coarse Rosinflower
+	 * @reason honestly can't be fucked rn
+	 */
+	@Overwrite
 	private void renderCrosshair(DrawContext context, RenderTickCounter tickCounter) {
 		GameOptions gameOptions = this.client.options;
 		if (gameOptions.getPerspective().isFirstPerson()) {

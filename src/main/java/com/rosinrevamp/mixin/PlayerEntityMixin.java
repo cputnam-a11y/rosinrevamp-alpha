@@ -1,15 +1,8 @@
 package com.rosinrevamp.mixin;
 
-import org.spongepowered.asm.mixin.Debug;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.gen.Accessor;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.authlib.GameProfile;
 import com.rosinrevamp.RosinRevamp;
 
@@ -39,12 +32,21 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-@Debug(export=true)
-@Mixin(value = PlayerEntity.class, priority = 999)
+import org.objectweb.asm.Opcodes;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin extends LivingEntity {
 	@Accessor public abstract int getCurrentExplosionResetGraceTime();
 	@Accessor public abstract HungerManager getHungerManager();
@@ -80,7 +82,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 	@Inject(method = "tick", at = @At("TAIL"))
 	public void onTick(CallbackInfo info) {
 		try {
-			if (this.getAttackCooldownProgress(0.5F) >= 0.72F) {
+			if (((PlayerEntity)(Object)this).getAttackCooldownProgress(0.5F) >= 0.72F) {
 				this.getAttributeInstance(EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE).addTemporaryModifier(RosinRevamp.RANGE_EXTENTION_MODIFIER);
 			} else {
 				this.getAttributeInstance(EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE).removeModifier(RosinRevamp.RANGE_EXTENTION_MODIFIER.id());
@@ -88,6 +90,14 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 		} catch (IllegalArgumentException e) {}
 	}
 
+	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;resetLastAttackedTicks()V"))
+	private void don_tResetLastAttackedTicks(PlayerEntity self) {
+	}
+
+	/**
+	 * @author Coarse Rosinflower
+	 * @reason Completely reworks the attack function.
+	 */
 	@Overwrite
 	public void attack(Entity target) {
 		PlayerEntity self = (PlayerEntity)(Object)this;
@@ -95,7 +105,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 		if (!target.isAttackable() || target.handleAttack(this)) {
 			return;
 		}
-		float cooldown = this.getAttackCooldownProgress(0.5F) * 0.8F + 0.2F;
+		float cooldown = self.getAttackCooldownProgress(0.5F) * 0.8F + 0.2F;
 		if (cooldown < 0.0F) {
 			return;
 		}
@@ -108,11 +118,11 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 			damageSource
 		);
 		ItemStack weaponStack = this.getWeaponStack();
-		this.lastAttackedTicks = (int)(-1.5F * this.getAttackCooldownProgressPerTick());
+		this.lastAttackedTicks = (int)(-1.5F * self.getAttackCooldownProgressPerTick());
 		if (target.getType().isIn(EntityTypeTags.REDIRECTABLE_PROJECTILE)
 			&& target instanceof ProjectileEntity projectileEntity
-			&& projectileEntity.deflect(ProjectileDeflection.REDIRECTED, this, this, true)
-		) {
+			&& projectileEntity.deflect(ProjectileDeflection.REDIRECTED, this, this, true)) {
+
 			world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_PLAYER_ATTACK_NODAMAGE, this.getSoundCategory());
 			return;
 		}
@@ -120,7 +130,6 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 		if (calculatedDamage <= 0.0F) {
 			return;
 		}
-		boolean isCharged = cooldown > 0.9F;
 		boolean isStrong = this.isSprinting();
 		if (isStrong) {
 			world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_PLAYER_ATTACK_KNOCKBACK, this.getSoundCategory(), 1.0F, 1.0F);
@@ -138,7 +147,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 			calculatedDamage *= 1.5F;
 		}
 
-		boolean isSweeping = isCharged
+		boolean isSweeping = cooldown > 0.9F
 			&& !isStrong
 			&& this.isOnGround()
 			&& this.horizontalSpeed - this.prevHorizontalSpeed < this.getMovementSpeed()
@@ -156,15 +165,15 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 		if (knockbackDealt > 0.0F) {
 			if (target instanceof LivingEntity livingEntity2) {
 				livingEntity2.takeKnockback(
-					(double)(knockbackDealt * 0.5F),
-					(double)MathHelper.sin(this.getYaw() * (float)(Math.PI / 180.0)),
-					(double)(-MathHelper.cos(this.getYaw() * (float)(Math.PI / 180.0)))
+					(double)knockbackDealt * 0.5,
+					Math.sin(Math.toRadians(this.getYaw())),
+					-Math.cos(Math.toRadians(this.getYaw()))
 				);
 			} else {
 				target.addVelocity(
-					(double)(-MathHelper.sin(this.getYaw() * (float)(Math.PI / 180.0)) * knockbackDealt * 0.5F),
+					-Math.sin(Math.toRadians(this.getYaw())) * (double)knockbackDealt * 0.5,
 					0.1,
-					(double)(MathHelper.cos(this.getYaw() * (float)(Math.PI / 180.0)) * knockbackDealt * 0.5F)
+					Math.cos(Math.toRadians(this.getYaw())) * (double)knockbackDealt * 0.5
 				);
 			}
 
@@ -174,7 +183,11 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 
 		if (isSweeping) {
 			float sweepDamage = 1.0F + (float)this.getAttributeValue(EntityAttributes.PLAYER_SWEEPING_DAMAGE_RATIO) * calculatedDamage;
-			for (LivingEntity sweepTarget: world.getNonSpectatingEntities(LivingEntity.class, target.getBoundingBox().expand(1.0, 0.25, 1.0))) {
+			for (LivingEntity sweepTarget : world.getNonSpectatingEntities(
+					LivingEntity.class,
+					this.getBoundingBox().offset(this.getRotationVec(1.0F).multiply(this.distanceTo(target))).expand(1.0, 0.25, 1.0))
+				) {
+
 				if (sweepTarget != this
 					&& sweepTarget != target
 					&& !this.isTeammate(sweepTarget)
@@ -182,7 +195,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 					&& this.squaredDistanceTo(sweepTarget) < 9.0) {
 
 					sweepTarget.takeKnockback(
-						0.4F, Math.sin((double)this.getYaw() * Math.PI / 180.0), -Math.cos((double)this.getYaw() * Math.PI / 180.0)
+						0.4F, Math.sin(Math.toRadians(this.getYaw())), -Math.cos(Math.toRadians(this.getYaw()))
 					);
 					sweepTarget.damage(damageSource, sweepDamage * cooldown);
 					if (world instanceof ServerWorld serverWorld) {
@@ -206,7 +219,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 		}
 
 		if (!isCritical && !isSweeping) {
-			if (isCharged) {
+			if (calculatedDamage > 1.0F) {
 				world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_PLAYER_ATTACK_STRONG, this.getSoundCategory(), 1.0F, 1.0F);
 			} else {
 				world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_PLAYER_ATTACK_WEAK, this.getSoundCategory(), 1.0F, 1.0F);
@@ -260,20 +273,20 @@ public abstract class PlayerEntityMixin extends LivingEntity {
 		self.addExhaustion(0.1F);
 	}
 
-	@Overwrite
-	public float getAttackCooldownProgressPerTick() {
-		return (float)(16.0 / this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED));
+	@ModifyReturnValue(method = "getAttackCooldownProgressPerTick", at = @At("RETURN"))
+	public float modifyAttackCooldownProgressPerTick(float original) {
+		return 0.8F * original;
 	}
-	@Overwrite
-	public float getAttackCooldownProgress(float baseTime) {
-		return MathHelper.clamp((float)(this.lastAttackedTicks + baseTime) / this.getAttackCooldownProgressPerTick(), -1.5F, 1.0F);
+	@ModifyArg(method = "getAttackCooldownProgress", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;clamp(FFF)F"), index = 1)
+	public float extendClampBounds(float min) {
+		return -1.5F;
 	}
 
-	@Overwrite
-	public void resetLastAttackedTicks() {
-		int zeroValue = (int)(-0.25F * this.getAttackCooldownProgressPerTick());
-		if ((float)this.lastAttackedTicks > zeroValue) {
-			this.lastAttackedTicks = zeroValue - 4;
+	@WrapOperation(method = "resetLastAttackedTicks", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/PlayerEntity;lastAttackedTicks:I", opcode = Opcodes.PUTFIELD))
+	public void tareLastAttackedTicks(PlayerEntity self, int newValue, Operation<Void> original) {
+		int zeroValue = (int)(-0.25F * self.getAttackCooldownProgressPerTick());
+		if (this.lastAttackedTicks >= zeroValue) {
+			original.call(self, zeroValue - 4);
 		}
 	}
 }

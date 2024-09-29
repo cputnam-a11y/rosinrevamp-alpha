@@ -33,7 +33,7 @@ public abstract class ToolMaterialsMixin {
 		} catch (NoSuchFieldException iHaveAPreciousSettlementAndINeedCashNow) {
 			try {
 				attackDamageField = ToolMaterials.class.getDeclaredField("attackDamage");
-			} catch (Exception e) {
+			} catch (NoSuchFieldException e) {
 				throw new RuntimeException(e);
 			}
 		}

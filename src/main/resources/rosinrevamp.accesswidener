@@ -1,0 +1,3 @@
+accessWidener v2 named
+
+extendable method net/minecraft/entity/vehicle/VehicleEntity shouldAlwaysKill (Lnet/minecraft/entity/damage/DamageSource;)Z
