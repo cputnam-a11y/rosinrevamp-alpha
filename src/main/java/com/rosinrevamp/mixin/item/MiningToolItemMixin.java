@@ -1,51 +1,76 @@
-    /*
-\  -
-, *-
-~ '
-*,  -*
-[  ^
-_         L__;_
-,/*_*\,     H_____H
-,/*   /   *\,  H  /  H
-,/*L_____L_____L*\H__L__H
-,/'/     /     /     H     H
-,/*___L_____L_____L_____H_____H
-,/*   /     /     /     /  H  /  H*\,
-,/*L_____L_____L_____L_____L_____L_____L*\,
-H'''''/'''''/'''''/'''''/'''''/'''''/'''''H
-H_____L_____L ,......., L_____L_____L_____H
-H  /     /    |  _ _  |    /     /     /  H
-_____________        H__L_____L___ | |_|_| | ___L_____L_____L__H
-| - - - - - |        H     /       I |_|_| | /     /     /     H
-|  * hack   |        H_____L______ |       | L_____L_____L_____H
-| house OwO |        H  /     /    |      O|    /     /     /  H
-|___________|        H__L_____L___ I       | ___L_____L_____L__H
-|/|             H     /       |       | /     /     /     H
-|/|             H,,,,,L,,,,,,,l.......l,L,,,,,L,,,,,L,,,,,H
+                                                                             /*
+                                                                          \  -
+                                                                       , *-
+                                                                       ~ '
+                                                                     *,  -*
+                                                                      [  ^
+                                                          _         L__;_
+                                                       ,/*_*\,     H_____H
+                                                    ,/*   /   *\,  H  /  H
+                                                 ,/*L_____L_____L*\H__L__H
+                                              ,/'/     /     /     H     H
+                                           ,/*___L_____L_____L_____H_____H
+                                        ,/*   /     /     /     /  H  /  H*\,
+                                     ,/*L_____L_____L_____L_____L_____L_____L*\,
+                                     H'''''/'''''/'''''/'''''/'''''/'''''/'''''H
+                                     H_____L_____L ,......., L_____L_____L_____H
+                                     H  /     /    |  _ _  |    /     /     /  H
+                _____________        H__L_____L___ | |_|_| | ___L_____L_____L__H
+                | - - - - - |        H     /       I |_|_| | /     /     /     H
+                |  * hack   |        H_____L______ |       | L_____L_____L_____H
+                | house OwO |        H  /     /    |      O|    /     /     /  H
+                |___________|        H__L_____L___ I       | ___L_____L_____L__H
+                     |/|             H     /       |       | /     /     /     H
+                     |/|             H,,,,,L,,,,,,,l.......l,L,,,,,L,,,,,L,,,,,H
 *~/*.~~*.**...*~-...-*-.~*~-*..--~~*~~../.-*-.--//~/--~~-/*~~-/-/*-/---~.---.**/
 
 
-package com.rosinrevamp.mixin.item;
 
-    import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-    import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-    import com.llamalad7.mixinextras.sugar.Share;
-    import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
-    import net.minecraft.block.Block;
-    import net.minecraft.component.DataComponentTypes;
-    import net.minecraft.component.type.AttributeModifierSlot;
-    import net.minecraft.component.type.AttributeModifiersComponent;
-    import net.minecraft.entity.attribute.EntityAttributeModifier;
-    import net.minecraft.entity.attribute.EntityAttributes;
-    import net.minecraft.item.*;
-    import net.minecraft.registry.tag.TagKey;
-    import net.minecraft.util.Identifier;
-    import org.spongepowered.asm.mixin.Mixin;
-    import org.spongepowered.asm.mixin.Unique;
-    import org.spongepowered.asm.mixin.injection.At;
-    import org.spongepowered.asm.mixin.injection.Inject;
-    import org.spongepowered.asm.mixin.injection.Slice;
-    import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+package com.rosinrevamp.mixin;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
+import net.minecraft.block.Block;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.AttributeModifierSlot;
+import net.minecraft.component.type.AttributeModifiersComponent;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.item.*;
+import net.minecraft.registry.tag.TagKey;
+import net.minecraft.util.Identifier;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Slice;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MiningToolItem.class)
 public abstract class MiningToolItemMixin extends ToolItem {
@@ -55,6 +80,8 @@ public abstract class MiningToolItemMixin extends ToolItem {
     private MiningToolItemMixin(ToolMaterial material, TagKey<Block> effectiveBlocks, Item.Settings settings) {
         super(material, settings.component(DataComponentTypes.TOOL, material.createComponent(effectiveBlocks)));
     }
+
+
 // think i got this one.
 //    /**
 //     * @author Coarse Rosinflower
