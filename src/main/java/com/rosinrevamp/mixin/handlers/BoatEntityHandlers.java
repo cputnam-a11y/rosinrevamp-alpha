@@ -1,11 +1,9 @@
 package com.rosinrevamp.mixin.handlers;
 
-import com.rosinrevamp.AbstractBlockAccessor;
 import com.rosinrevamp.RosinRevamp;
-
+import com.rosinrevamp.mixin.AbstractBlockAccessor;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.vehicle.BoatEntity;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 

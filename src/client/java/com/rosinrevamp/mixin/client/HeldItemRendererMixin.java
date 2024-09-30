@@ -1,6 +1,7 @@
 package com.rosinrevamp.mixin.client;
 
-import net.minecraft.client.MinecraftClient;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -13,23 +14,19 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = HeldItemRenderer.class, priority = Integer.MAX_VALUE)
 public abstract class HeldItemRendererMixin {
-	@Accessor protected abstract MinecraftClient getClient();
 	@Shadow protected abstract void applyEquipOffset(MatrixStack matrices, Arm arm, float equipProgress);
 
-	@Redirect(method = "updateHeldItems", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getAttackCooldownProgress(F)F"))
-	public float clampEquipProgress(ClientPlayerEntity player, float baseTime) {
-		return Math.max(player.getAttackCooldownProgress(baseTime), 0.0F);
+	@WrapOperation(method = "updateHeldItems", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getAttackCooldownProgress(F)F"))
+	public float clampEquipProgress(ClientPlayerEntity instance, float baseTime, Operation<Float> original) {
+		return Math.max(original.call(instance, baseTime), 0.0F);
 	}
 
 	@Inject(method = "renderFirstPersonItem", at = @At("HEAD"), cancellable = true)

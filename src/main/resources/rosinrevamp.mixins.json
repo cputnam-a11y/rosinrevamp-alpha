@@ -1,32 +1,34 @@
 {
-	"required": true,
-	"package": "com.rosinrevamp.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixinPriority": 0,
-	"mixins": [
-		"handlers.BoatEntityHandlers",
-		"handlers.EntityAbstractHandler",
-		"AbstractBlockMixin",
-		"BedItemMixin",
-		"BoatEntityMixin",
-		"BowItemMixin",
-		"CrossbowItemMixin",
-		"EggItemMixin",
-		"EntityMixin",
-		"HungerManagerMixin",
-		"ItemStackMixin",
-		"LivingEntityMixin",
-		"MaceItemMixin",
-		"MiningToolItemMixin",
-		"PlayerEntityMixin",
-		"SnowballItemMixin",
-		"SwordItemMixin",
-		"TestCommandMixin",
-		"ToolMaterialsMixin",
-		"TridentItemMixin",
-		"VehicleEntityMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
+  "required": true,
+  "package": "com.rosinrevamp.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixinPriority": 0,
+  "mixins": [
+    "AbstractBlockAccessor",
+    "BedItemMixin",
+    "BoatEntityMixin",
+    "BowItemMixin",
+    "CrossbowItemMixin",
+    "EggItemMixin",
+    "EntityAttributeAccessor",
+    "EntityMixin",
+    "HungerManagerMixin",
+    "ItemsMixin",
+    "ItemStackMixin",
+    "LivingEntityMixin",
+    "MaceItemMixin",
+    "MiningToolItemMixin",
+    "PlayerEntityMixin",
+    "SnowballItemMixin",
+    "SwordItemMixin",
+    "TestCommandMixin",
+    "ToolMaterialsMixin",
+    "TridentItemMixin",
+    "VehicleEntityMixin",
+    "handlers.BoatEntityHandlers",
+    "handlers.EntityAbstractHandler"
+  ],
+  "injectors": {
+    "defaultRequire": 1
 	}
 }
