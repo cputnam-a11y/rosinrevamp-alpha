@@ -1,5 +1,6 @@
 package com.rosinrevamp;
 
+import com.rosinrevamp.attributemodifier.AttributeModifierModifiers;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -20,6 +21,7 @@ public class RosinRevamp implements ModInitializer {
     @Override
     public void onInitialize() {
         // brigadier runs before mod initializer so we don't need to set this here
+        AttributeModifierModifiers.init();
     }
 
     public static void sendDebugCrash(Throwable e) {
