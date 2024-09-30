@@ -1,5 +1,7 @@
 package com.rosinrevamp.mixin.client;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.DebugHud;
@@ -17,18 +19,17 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.GameMode;
-
 import org.joml.Matrix4fStack;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-
 @Mixin(value = InGameHud.class, priority = Integer.MAX_VALUE)
 public abstract class InGameHudMixin {
+	@Final
 	@Shadow private MinecraftClient client;
+	@Final
 	@Shadow private DebugHud debugHud;
 	@Shadow protected abstract boolean shouldRenderSpectatorCrosshair(HitResult hitResult);
 	@Shadow protected abstract PlayerEntity getCameraPlayer();

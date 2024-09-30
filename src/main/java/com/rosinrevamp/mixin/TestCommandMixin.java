@@ -13,6 +13,7 @@ public class TestCommandMixin {
 	// please explain this
 	@Inject(method = "register", at = @At("HEAD"), cancellable = true)
 	private static void pleaseDon_tCrashThisVeryFragileGame(CommandDispatcher<ServerCommandSource> dispatcher, CallbackInfo info) {
-		info.cancel();
+
+//		info.cancel();
 	}
 }

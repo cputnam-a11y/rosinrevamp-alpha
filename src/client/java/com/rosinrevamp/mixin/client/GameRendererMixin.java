@@ -1,5 +1,6 @@
 package com.rosinrevamp.mixin.client;
 
+import com.rosinrevamp.RosinRevampClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.Entity;
@@ -11,15 +12,12 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.hit.HitResult.Type;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-
-import java.util.List;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import com.rosinrevamp.RosinRevampClient;
+import java.util.List;
 
 @Mixin(value = GameRenderer.class, priority = Integer.MAX_VALUE)
 public abstract class GameRendererMixin implements AutoCloseable {

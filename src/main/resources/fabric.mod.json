@@ -19,6 +19,9 @@
 		],
 		"client": [
 			"com.rosinrevamp.RosinRevampClient"
+		],
+		"preLaunch": [
+			"com.rosinrevamp.DevConstant"
 		]
 	},
 	"accessWidener" : "rosinrevamp.accesswidener",
